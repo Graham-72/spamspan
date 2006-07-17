@@ -124,6 +124,13 @@ function spamspan_filter($op, $delta = 0, $format = -1, $text = '') {
   }
 }
 
+function spamspan_callback($matches) {
+    // Replace .'s in domain part with [dot]
+    global $spamspan_format;
+    $domain = str_replace("."," [dot] ", $matches[3]);
+    return "$matches[1]<span class=\"spamspan\"><span class=\"" . variable_get('spamspan_userclass_'.$spamspan_format, 'u') . "\">$matches[2]</span>" . variable_get('spamspan_at_'.$spamspan_format, ' [at] ') . "<span class=\"" . variable_get('spamspan_domainclass_'.$spamspan_format, 'd') . "\">$domain</span></span>";
+  }
+
 function spamspan ($string, $format) {
   /*  We are aiming for code like this:
    <span class="spamspan">
@@ -132,17 +139,11 @@ function spamspan ($string, $format) {
    <span class="d">example [dot] com</span>
    </span>
   */
-  // $pattern = "!(<p>|<li>|[ \n\r\t\(])([A-Za-z0-9._+-]+)\@([A-Za-z0-9._-]+)\.([A-Za-z]{2,4})([.,]?)(?=(</p>|</li>|[ \n\r\t\)]))!i";
+
 
   $GLOBALS['spamspan_format'] = $format;
 
-  function spamspan_callback($matches) {
-    // Replace .'s in domain part with [dot]
-    global $spamspan_format;
-    $domain = str_replace("."," [dot] ", $matches[3]);
-    return "$matches[1]<span class=\"spamspan\"><span class=\"" . variable_get('spamspan_userclass_'.$spamspan_format, 'u') . "\">$matches[2]</span>" . variable_get('spamspan_at_'.$spamspan_format, ' [at] ') . "<span class=\"" . variable_get('spamspan_domainclass_'.$spamspan_format, 'd') . "\">$domain</span></span>";
-  }
-  
+    
   $pattern = "!(<p>|<li>|<br\s*/?>|[ \n\r\t\(])(?:([-\.\w\+^@]+)@((?:[-\w]+\.)+[A-Z]{2,4}))(?:[.,]?)(?=(?:</p>|</li>|<br\s*/?>|[ \n\r\t\)]))!i";
   return preg_replace_callback($pattern, 'spamspan_callback', $string);
 }
