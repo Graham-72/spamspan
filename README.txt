@@ -22,14 +22,17 @@ Installation
 3. Go to 'administer > configuration > input formats' and enable the filter in
    the desired input formats.
 
-4. (optional) Rearrange the filters on the input format's 'rearrange' tab to
-   resolve conflicts with other filters.
+4. Rearrange the filters on the input format's 'rearrange' tab to
+   resolve conflicts with other filters.  NB: To avoid problems, you
+   should at least make sure that the SpamSpan filter has a higher
+   weighting (greater number) than the line break filter which comes
+   with Drupal, so that the line break filter is executed first.
 
 5. (optional) Select the configure tab to set available options
 
 Module Author
 ------------
 
-Lawrence Akka <lakka@users.sourceforge.net>
+Lawrence Akka : Contact me via http://drupal.org/user/63367
 
 Note:  The spamspan javascript file is from www.spamspan.com
