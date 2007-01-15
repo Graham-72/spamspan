@@ -26,7 +26,7 @@ addLoadEvent(spamSpan);
  }
 
 function spamSpan() {
-	var allSpamSpans = getElementsByClass(spamSpanMainClass, document, 'span');
+	var allSpamSpans = spamSpanGetElementsByClass(spamSpanMainClass, document, 'span');
 	for (var i=0; i<allSpamSpans.length; i++) {
 		// get data
 		var user = getSpanValue(spamSpanUserClass, allSpamSpans[i]);
@@ -44,7 +44,7 @@ function spamSpan() {
 	}
 }
 
-function getElementsByClass(searchClass, scope, tag) {
+function spamSpanGetElementsByClass(searchClass, scope, tag) {
 	var classElements = new Array();
 	if (scope == null) node = document;
 	if (tag == null) tag = '*';
