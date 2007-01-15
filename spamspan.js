@@ -61,7 +61,7 @@ function spamSpanGetElementsByClass(searchClass, scope, tag) {
 }
 
 function getSpanValue(searchClass, scope) {
-	var span = getElementsByClass(searchClass, scope, 'span');
+	var span = spamSpanGetElementsByClass(searchClass, scope, 'span');
 	if (span[0]) return span[0].firstChild.nodeValue;
 	else return false;
 }
