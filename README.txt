@@ -14,8 +14,9 @@ JavaScript or if JavaScript is disabled.
 Installation
 ---------
 
-1. Create a directory in the Drupal modules/ directory called spamspan and copy
-   all of the module's files into it. 
+1. Create a directory in your Drupal modules directory (probably
+   sites/all/modules/) called spamspan and copy all of the module's
+   files into it.
 
 2. Go to 'administer > modules', and enable the spamspan.module
 
@@ -34,5 +35,3 @@ Module Author
 ------------
 
 Lawrence Akka : Contact me via http://drupal.org/user/63367
-
-Note:  The spamspan javascript file is from www.spamspan.com
