@@ -12,7 +12,7 @@ clickable links if JavaScript is enabled, and will show the email address as
 JavaScript or if JavaScript is disabled.
 
 Installation
----------
+------------
 
 1. Create a directory in your Drupal modules directory (probably
    sites/all/modules/) called spamspan and copy all of the module's
@@ -27,9 +27,18 @@ Installation
    resolve conflicts with other filters.  NB: To avoid problems, you
    should at least make sure that the SpamSpan filter has a higher
    weighting (greater number) than the line break filter which comes
-   with Drupal, so that the line break filter is executed first.
+   with Drupal, so that the line break filter is executed first.  If you use HTML
+   filter, you may need to make sure that <span> is one of the allowed tags.
+   Also, URL filter must come after SpamSpan.
 
 5. (optional) Select the configure tab to set available options
+
+Bugs
+----
+
+Please report any bugs using the bug tracker at
+http://drupal.org/project/issues/spamspan
+
 
 Module Author
 ------------
