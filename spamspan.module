@@ -68,7 +68,7 @@ function spamspan_filter($op, $delta = 0, $format = -1, $text = '') {
       return $text;
 		
     case 'process':
-      return spamspan($text, $format);
+      return spamspan(spamspan_convertmailto($text), $format);
 		
     case 'settings':
       $form['spamspan_settings'] = array(
@@ -165,15 +165,21 @@ function spamspan ($string, $format) {
   return preg_replace_callback($pattern, 'spamspan_callback', $string);
 }
 
-// Possibly use following regexp to capture a href attribute from
-// a mailto tag?
-// "!<a\s+  # opening <a and spaces
-// (?:(?:\w+\s*=\s*)(?:\w+|\"[^\"]*\"|'[^']*'))*?  # any attributes
-// \s*	# whitespace
-// href\s*=\s*(?:\"mailto:([^\"]*)\"|'mailto:([^']*)')  # the href attribute, capturing the value
-// (?:(?:\s+\w+\s*=\s*)(?:\w+|\"[^\"]*\"|'[^']*'))*?  # any more attributes
-// > # end of the first tag
-// [^<]+  # tag contents
-// </a>  #closing tag
-// !ix" 
+function spamspan_convertmailto($string='')
+// does not presently work with URL parameters, eg
+// mailto:email@example.com?subject=subject
+{
+	define ("REGEX",
+		"!<a\s+  # opening <a and spaces
+				(?:(?:\w+\s*=\s*)(?:\w+|\"[^\"]*\"|'[^']*'))*?  # any attributes
+				\s*	# whitespace
+				href\s*=\s*(['\"])mailto:(.+?)\\1  # the href attribute, capturing the value
+				(?:(?:\s+\w+\s*=\s*)(?:\w+|\"[^\"]*\"|'[^']*'))*?  # any more attributes
+				> # end of the first tag
+				[^<]*  # tag contents
+				</a>  #closing tag
+				!ix" );
+	return preg_replace(REGEX, "\\2", $string);
+}
+
 
