@@ -119,6 +119,9 @@ class Main extends UnitTestCase
 		$this->assertEqual(spamspan_convertmailto('<a href="mailto:email@example.com">some text</a>'), "email@example.com");
 // ignore parameters
 		$this->assertEqual(spamspan_convertmailto('<a href="mailto:email@example.com">some text</a>'), "email@example.com");
+		
+		// allow nested tags
+		$this->assertEqual(spamspan_convertmailto('<a href="mailto:email@example.com"><em>some text</em></a>'), "email@example.com");
 		}
 		}
 

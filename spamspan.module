@@ -176,7 +176,8 @@ function spamspan_convertmailto($string='')
 				href\s*=\s*(['\"])mailto:(.+?)\\1  # the href attribute, capturing the value
 				(?:(?:\s+\w+\s*=\s*)(?:\w+|\"[^\"]*\"|'[^']*'))*?  # any more attributes
 				> # end of the first tag
-				[^<]*  # tag contents
+				.*?  # tag contents.  NB this will not work properly if there
+					 # is a nested <a>, but this is not valid xhtml anyway
 				</a>  #closing tag
 				!ix" );
 	return preg_replace(REGEX, "\\2", $string);
