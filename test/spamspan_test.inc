@@ -41,7 +41,7 @@ class Main extends UnitTestCase
 			'user@example.museum' => 
 			'<span class="spamspan"><span class="u">user</span> [at] <span class="d">example [dot] museum</span></span>',
 			'user.user@example.com' => 
-			'<span class="spamspan"><span class="u">user.user</span> [at] <span class="d">example [dot] com</span></span>',
+			'<span class="spamspan"><span class="u">user [dot] user</span> [at] <span class="d">example [dot] com</span></span>',
 			'user\'user@example.com' => 
 			'<span class="spamspan"><span class="u">user\'user</span> [at] <span class="d">example [dot] com</span></span>',
 			'user-user@example.com' => 
