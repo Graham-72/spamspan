@@ -24,7 +24,7 @@ if (Drupal.jsEnabled) {
 	    	"@" + 
 	    	$("span." + Drupal.settings.spamspan.d, this).text())
 	    	.replace(/\s+/g, '')
-	    	.replace(/[\[\(\{]?[dD][oO0][tT][\}\)\]]?/g, '.');		
+	    	.replace(/\[dot\]/g, '.');		
 	    var _anchorText = $("span." +  Drupal.settings.spamspan.t, this).text();
 // create the <a> element, and replace the original span contents
    	    $(this).after(
