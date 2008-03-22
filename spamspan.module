@@ -109,9 +109,9 @@ function spamspan_filter($op, $delta = 0, $format = -1, $text = '') {
 
 
 /**
- * Implementation of hook_footer().
+ * Implementation of hook_init().
  */
-function spamspan_footer($main = 0) {
+function spamspan_init() {
   // Add the javascript to each page
   drupal_add_js(drupal_get_path("module", "spamspan") .'/spamspan.compressed.js');
   // pass necessary variables to the javascript
