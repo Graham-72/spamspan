@@ -67,7 +67,7 @@ function spamspan_filter($op, $delta = 0, $format = -1, $text = '') {
       return $text;
 
     case 'process':
-      return spamspan(spamspan_convertmailto($text));
+      return spamspan($text);
 
     case 'settings':
       // field set for the spamspan settings
@@ -129,10 +129,20 @@ function spamspan_init() {
  * callback function for preg_replace_callback
  */
 function spamspan_callback($matches) {
+  // Receives user is $matches[2], domain in [3] and mailto tag contents in [4] (if any)
   // Replace .'s in the address with [dot]
-  $user_name = str_replace(".", " [dot] ", $matches[1]);
-  $domain = str_replace(".", " [dot] ", $matches[2]);
-  return '<span class="spamspan"><span class="'. variable_get('spamspan_userclass', 'u') ."\">$user_name</span>". variable_get('spamspan_at', ' [at] ') ."<span class=\"". variable_get('spamspan_domainclass', 'd') ."\">$domain</span></span>";
+  $user_name = str_replace(".", " [dot] ", $matches[2]);
+  $domain = str_replace(".", " [dot] ", $matches[3]);
+  $output = '<span class="spamspan"><span class="'. 
+    variable_get('spamspan_userclass', 'u') ."\">$user_name</span>". 
+    variable_get('spamspan_at', ' [at] ') ."<span class=\"". 
+    variable_get('spamspan_domainclass', 'd') ."\">$domain</span>";
+// if there are tag contents, include them
+  if ($matches[4]) {
+    $output .= "<span class=\"".variable_get('spamspan_anchorclass', 't')."\">".$matches[4]."</span>";
+  }
+  $output .= "</span>";
+  return $output;
 }
 
 /**
@@ -148,36 +158,42 @@ function spamspan($string) {
   // The following pattern is not perfect (who is?), but is intended to intercept
   // things which look like email addresses.  It is not intended to determine if
   // an address is valid.  It will not intercept addresses with quoted local parts
-  $pattern = "!
-    ##################################################
-    # Group 1
-      ([-\.\~\'\w\+^@]+)    # Match the name part - dash, dot or characters
+  
+  // First, set up a regex to split an email address into name and domain parts.
+  $emailmatch = "
+      ([-\.\~\'\w\+^@]+)    # Group 1 - Match the name part - dash, dot or characters
       @                     # @
-    # Group 2
-      ((?:
+      ((?:                  # Group 2
         [-\w]+\.            # one or more letters or dashes followed by a dot
         )+                  # The whole thing one or more times
         [A-Z]{2,6}          # with between two and six letters at the end (NB .museum)
-      )
-    ###################################################
-    !ix";            // Case insensitive, ignore whitespace
-  return preg_replace_callback($pattern, 'spamspan_callback', $string);
-}
+      )";
+  // Top and tail it so that it is case insensitive and ignore whitespace.  
+  // The extra brackets ensure that the pattern captures the name into the 
+  // second group and the domain into the third.  The first group is not used:
+  $emailpattern = "!(".$emailmatch.")!ix";
 
-function spamspan_convertmailto($string='') {
-  // does not presently work with URL parameters, eg
+  // Next set up a regex for mailto: tags.  Again, this captures the name into the 
+  // second group and the domain into the third. The tag contents go into the
+  // fourth.  This does not presently do anything with URL parameters, eg
   // mailto:email@example.com?subject=subject
-  define("REGEX",
-    "!<a\s+  # opening <a and spaces
+  
+  $mailtopattern = "!<a\s+                                # opening <a and spaces
       (?:(?:\w+\s*=\s*)(?:\w+|\"[^\"]*\"|'[^']*'))*?      # any attributes
       \s*                                                 # whitespace
-      href\s*=\s*(['\"])mailto:(.+?)\\1                   # the href attribute, capturing the value
+      href\s*=\s*(['\"])mailto:".                         # the href attribute
+      $emailmatch.                                        # The email address
+      "\\1                                                # the relevant quote character
       (?:(?:\s+\w+\s*=\s*)(?:\w+|\"[^\"]*\"|'[^']*'))*?   # any more attributes
       >                                                   # end of the first tag
-      .*?                                                 # tag contents.  NB this will not work properly if there
+      (.*?)                                               # tag contents.  NB this will not work properly if there
                                                           # is a nested <a>, but this is not valid xhtml anyway
       </a>                                                # closing tag
-      !ix" );
-  return preg_replace(REGEX, "\\2", $string);
+      !ix";
+    
+  // Now we can convert all mailto tags
+  $string = preg_replace_callback($mailtopattern, 'spamspan_callback', $string);
+  // and finally, all bare email addresses
+  return preg_replace_callback($emailpattern, 'spamspan_callback', $string);
 }
 

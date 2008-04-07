@@ -111,19 +111,17 @@ class Main extends UnitTestCase
 	}
 	
 	function testMailto() {
-		$this->assertEqual(spamspan_convertmailto("<a href='mailto:email@example.com'></a>"), "email@example.com");
-		$this->assertEqual(spamspan_convertmailto("<a href='email@example.com'></a>"), "<a href='email@example.com'></a>");
-		$this->assertEqual(spamspan_convertmailto("<a href='mailto:email@example.com'>some text</a>text"), "email@example.comtext");
-		$this->assertEqual(spamspan_convertmailto("<a href='mailto:email@example.com'></a>"), "email@example.com");
-		$this->assertEqual(spamspan_convertmailto("<a attribute='something' href='mailto:email@example.com' attribute='something'></a>"), "email@example.com");
-		$this->assertEqual(spamspan_convertmailto('<a href="mailto:email@example.com">some text</a>'), "email@example.com");
-// ignore parameters
-		$this->assertEqual(spamspan_convertmailto('<a href="mailto:email@example.com">some text</a>'), "email@example.com");
-		
-		// allow nested tags
-		$this->assertEqual(spamspan_convertmailto('<a href="mailto:email@example.com"><em>some text</em></a>'), "email@example.com");
+	  print"Test mailto:\n";
+	  // plain
+		$this->assertEqual(spamspan("<a href='mailto:email@example.com'></a>"), '<span class="spamspan"><span class="u">email</span> [at] <span class="d">example [dot] com</span></span>');
+		// with anchor text
+	  $this->assertEqual(spamspan("<a href='mailto:email@example.com'>some text</a>"), '<span class="spamspan"><span class="u">email</span> [at] <span class="d">example [dot] com</span><span class="t">some text</span></span>');
+    // with an extra attribute
+	  $this->assertEqual(spamspan("<a attribute='something' href='mailto:email@example.com'></a>"), '<span class="spamspan"><span class="u">email</span> [at] <span class="d">example [dot] com</span></span>');
+    // with nested tags
+	  $this->assertEqual(spamspan("<a href='mailto:email@example.com'>some <em>text</em></a>"), '<span class="spamspan"><span class="u">email</span> [at] <span class="d">example [dot] com</span><span class="t">some <em>text</em></span></span>');
 		}
-		}
+}
 
 
 // set up a dummy function, because variable_get is not available outside drupal
