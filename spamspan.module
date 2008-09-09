@@ -13,7 +13,18 @@
  * Licenced under GPL v 2 -  see http://www.gnu.org/licenses/gpl.txt
  */
 
-
+ // Set up a regex constant to split an email address into name and domain parts.
+ // The following pattern is not perfect (who is?), but is intended to intercept
+ // things which look like email addresses.  It is not intended to determine if
+ // an address is valid.  It will not intercept addresses with quoted local parts.
+ define(SPAMSPAN_EMAIL, "
+     ([-\.\~\'\w\+^@]+)    # Group 1 - Match the name part - dash, dot or characters
+     @                     # @
+     ((?:                  # Group 2
+       [-\w]+\.            # one or more letters or dashes followed by a dot
+       )+                  # The whole thing one or more times
+       [A-Z]{2,6}          # with between two and six letters at the end (NB .museum)
+     )");
 
 /**
  * Implementation of hook_help().
@@ -74,7 +85,7 @@ function spamspan_filter($op, $delta = 0, $format = -1, $text = '') {
       $form['spamspan_settings'] = array(
         '#type' => 'fieldset',
         '#title' => t('SpamSpan email address encoding filter'),
-        '#description' => t('Warning: these are global settings and not per input format. Changing them here will change them for other input formats too.'),
+        '#description' => t('Warning: these are global settings and not per input format. Changing them here will change them for other input formats too.  You should not normally need to change any of these settings.'),
         '#collapsible' => true,
       );
       // spamspan user name part class name
@@ -101,6 +112,13 @@ function spamspan_filter($op, $delta = 0, $format = -1, $text = '') {
         '#required' => TRUE,
         '#description' => t('Replace "@" with this text when javascript is disabled.')
       );
+      $form['spamspan_settings']['spamspan_use_graphic'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Use a graphical replacement for "@"'),
+        '#default_value' => variable_get('spamspan_use_graphic', 0),
+        '#required' => TRUE,
+        '#description' => t('Replace "@" with a graphical representation when javascript is disabled (and ignore the setting "Replacement for @" above).')
+        );
       return $form;
     }
     break;
@@ -133,13 +151,25 @@ function spamspan_callback($matches) {
   // Replace .'s in the address with [dot]
   $user_name = str_replace(".", " [dot] ", $matches[2]);
   $domain = str_replace(".", " [dot] ", $matches[3]);
+  if (variable_get('spamspan_use_graphic', 1)) {
+     $image = base_path().drupal_get_path("module","spamspan")."/image.gif";
+     $at = '<img alt="at" width="10" src="'.$image.'">';
+   }
+   else {
+     $at = variable_get('spamspan_at', ' [at] ');
+  }
   $output = '<span class="spamspan"><span class="'. 
     variable_get('spamspan_userclass', 'u') ."\">$user_name</span>". 
-    variable_get('spamspan_at', ' [at] ') ."<span class=\"". 
+    $at ."<span class=\"". 
     variable_get('spamspan_domainclass', 'd') ."\">$domain</span>";
-// if there are tag contents, include them
-  if ($matches[4]) {
-    $output .= "<span class=\"".variable_get('spamspan_anchorclass', 't')."\">".$matches[4]."</span>";
+// if there are tag contents, include them, between round brackets, unless
+// the contents are an email address.  In that case, we can ignore them.  This
+// is also a good idea because otherise the tag contents are themselves converted
+// into a spamspan, with undesirable consequences - see bug #305464.  NB problems
+// may still be caused by edge cases, eg if the tag contents are "blah blah
+// email@example.com ..."
+  if ($matches[4] and !(preg_match("!^".SPAMSPAN_EMAIL."$!ix",$matches[4]))) {
+    $output .= "<span class=\"".variable_get('spamspan_anchorclass', 't')."\"> (".$matches[4].")</span>";
   }
   $output .= "</span>";
   return $output;
@@ -152,26 +182,15 @@ function spamspan_callback($matches) {
  *   <span class="u">user</span>
  *   [at]
  *   <span class="d">example [dot] com</span>
- *   </span>
+ *   <span class="t"tag contents></span></span>
  */
 function spamspan($string) {
-  // The following pattern is not perfect (who is?), but is intended to intercept
-  // things which look like email addresses.  It is not intended to determine if
-  // an address is valid.  It will not intercept addresses with quoted local parts
-  
-  // First, set up a regex to split an email address into name and domain parts.
-  $emailmatch = "
-      ([-\.\~\'\w\+^@]+)    # Group 1 - Match the name part - dash, dot or characters
-      @                     # @
-      ((?:                  # Group 2
-        [-\w]+\.            # one or more letters or dashes followed by a dot
-        )+                  # The whole thing one or more times
-        [A-Z]{2,6}          # with between two and six letters at the end (NB .museum)
-      )";
-  // Top and tail it so that it is case insensitive and ignore whitespace.  
-  // The extra brackets ensure that the pattern captures the name into the 
-  // second group and the domain into the third.  The first group is not used:
-  $emailpattern = "!(".$emailmatch.")!ix";
+ 
+  // Top and tail the email regexp it so that it is case insensitive and
+  // ignores whitespace. The extra brackets ensure that the pattern captures
+  // the name into the second group and the domain into the third.  The first
+  // group is not used:
+  $emailpattern = "!(".SPAMSPAN_EMAIL.")!ix";
 
   // Next set up a regex for mailto: tags.  Again, this captures the name into the 
   // second group and the domain into the third. The tag contents go into the
@@ -182,7 +201,7 @@ function spamspan($string) {
       (?:(?:\w+\s*=\s*)(?:\w+|\"[^\"]*\"|'[^']*'))*?      # any attributes
       \s*                                                 # whitespace
       href\s*=\s*(['\"])mailto:".                         # the href attribute
-      $emailmatch.                                        # The email address
+      SPAMSPAN_EMAIL.                                     # The email address
       "\\1                                                # the relevant quote character
       (?:(?:\s+\w+\s*=\s*)(?:\w+|\"[^\"]*\"|'[^']*'))*?   # any more attributes
       >                                                   # end of the first tag

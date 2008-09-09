@@ -115,19 +115,35 @@ class Main extends UnitTestCase
 	  // plain
 		$this->assertEqual(spamspan("<a href='mailto:email@example.com'></a>"), '<span class="spamspan"><span class="u">email</span> [at] <span class="d">example [dot] com</span></span>');
 		// with anchor text
-	  $this->assertEqual(spamspan("<a href='mailto:email@example.com'>some text</a>"), '<span class="spamspan"><span class="u">email</span> [at] <span class="d">example [dot] com</span><span class="t">some text</span></span>');
+	  $this->assertEqual(spamspan("<a href='mailto:email@example.com'>some text</a>"), '<span class="spamspan"><span class="u">email</span> [at] <span class="d">example [dot] com</span><span class="t"> (some text)</span></span>');
     // with an extra attribute
 	  $this->assertEqual(spamspan("<a attribute='something' href='mailto:email@example.com'></a>"), '<span class="spamspan"><span class="u">email</span> [at] <span class="d">example [dot] com</span></span>');
     // with nested tags
-	  $this->assertEqual(spamspan("<a href='mailto:email@example.com'>some <em>text</em></a>"), '<span class="spamspan"><span class="u">email</span> [at] <span class="d">example [dot] com</span><span class="t">some <em>text</em></span></span>');
+	  $this->assertEqual(spamspan("<a href='mailto:email@example.com'>some <em>text</em></a>"), '<span class="spamspan"><span class="u">email</span> [at] <span class="d">example [dot] com</span><span class="t"> (some <em>text</em>)</span></span>');
+    // with an email address as the tag contents
+     $this->assertEqual(spamspan("<a href='mailto:email@example.com'>email@example.com</a>"), '<span class="spamspan"><span class="u">email</span> [at] <span class="d">example [dot] com</span></span>');
 		}
 }
 
 
-// set up a dummy function, because variable_get is not available outside drupal
+// set up some dummy function, which are not available outside drupal
 function variable_get($one, $two)
 {
-	return $two;
+  // spoof a return value, so that the tests are run with spamspan_use_graphic = 0
+	if ($one == 'spamspan_use_graphic') {
+	  return 0;
+	} else {
+	  return $two;}
+}
+
+function base_path()
+{
+  return '';
+}
+
+function drupal_get_path($one, $two)
+{
+  return '';
 }
 
 

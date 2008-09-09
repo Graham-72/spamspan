@@ -25,7 +25,8 @@ if (Drupal.jsEnabled) {
 	    	$("span." + Drupal.settings.spamspan.d, this).text())
 	    	.replace(/\s+/g, '')
 	    	.replace(/\[dot\]/g, '.');		
-	    var _anchorText = $("span." +  Drupal.settings.spamspan.t, this).text();
+// Find the anchor text, and remove the round brackets from the start and end
+	    var _anchorText = $("span." +  Drupal.settings.spamspan.t, this).text().replace(/^ \((.*)\)$/, "$1");
 // create the <a> element, and replace the original span contents
    	    $(this).after(
 		$("<a></a>")
