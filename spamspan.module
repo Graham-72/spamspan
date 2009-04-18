@@ -51,7 +51,7 @@ function spamspan_help($section) {
 function spamspan_filter_tips($delta, $format, $long = FALSE) {
   switch ($delta) {
   case 0:
-    return t('Each email address will be obfuscated in a human readble fashion or (if JavaScript is enabled) replaced with a spamproof clickable link.');
+    return t('Each email address will be obfuscated in a human readable fashion or (if JavaScript is enabled) replaced with a spamproof clickable link.');
     break;
   }
 }
@@ -153,7 +153,7 @@ function spamspan_callback($matches) {
   $domain = str_replace(".", " [dot] ", $matches[3]);
   if (variable_get('spamspan_use_graphic', 1)) {
      $image = base_path().drupal_get_path("module","spamspan")."/image.gif";
-     $at = '<img alt="at" width="10" src="'.$image.'">';
+     $at = '<img alt="at" width="10" src="'.$image.'" />';
    }
    else {
      $at = variable_get('spamspan_at', ' [at] ');
