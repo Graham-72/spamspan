@@ -168,7 +168,7 @@ function spamspan_callback($matches) {
 // into a spamspan, with undesirable consequences - see bug #305464.  NB problems
 // may still be caused by edge cases, eg if the tag contents are "blah blah
 // email@example.com ..."
-  if ($matches[4] and !(preg_match("!^".SPAMSPAN_EMAIL."$!ix",$matches[4]))) {
+  if (isset ($matches[4]) and $matches[4] and  !(preg_match("!^".SPAMSPAN_EMAIL."$!ix",$matches[4]))) {
     $output .= "<span class=\"".variable_get('spamspan_anchorclass', 't')."\"> (".$matches[4].")</span>";
   }
   $output .= "</span>";
