@@ -206,7 +206,7 @@ function spamspan($string) {
   // Next set up a regex for mailto: URLs.  http://www.faqs.org/rfcs/rfc2368.html
   // Again, this captures the name into the second group and the domain into
   // the third. The tag contents go into the fourth.  This does not presently
-  // do anything with URL parameters, eg the subject in 
+  // do anything with URL parameters, eg the subject in
   // mailto:email@example.com?subject=subject except ignore them.
 
   $mailtopattern = "!<a\s+                            # opening <a and spaces
