@@ -36,15 +36,8 @@
 /**
  * Implementation of hook_help().
  */
-function spamspan_help($section) {
-  switch ($section) {
-  case 'admin/modules#description':
-    // This description is shown in the listing at admin/modules.
-    $output = t('Disguises email addresses in an attempt to reduce spam.');
-    if (module_exists('spamspan')) {
-      $output .= t(' <a href="%url">more help</a>', array('%url' => url('admin/help/spamspan')));
-    }
-    return $output;
+function spamspan_help($path, $arg) {
+  switch ($path) {
   case 'admin/help#spamspan':
     return t('<p>The SpamSpan module obfuscates email addresses to help prevent spambots from collecting them. It will produce clickable links if JavaScript is enabled, and will show the email address as <code>example [at] example [dot] com</code> if the browser does not support JavaScript.</p><p>To configure the module, select "configure" next to the <a href="admin/filters">input format</a> you\'d like to use. Enable "Hide Email Addresses" and submit the form. Then select the "configure" tab to choose relevant options.</p>');
   }
