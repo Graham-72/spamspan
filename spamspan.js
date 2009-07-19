@@ -10,15 +10,14 @@
 
 /*  
 	IF YOU MAKE ANY CHANGES HERE COMPRESS THIS SOURCE CODE USING
-   	http://alex.dojotoolkit.org/shrinksafe/ TO MAKE spamspan.compressed.js
+   	http://shrinksafe.dojotoolkit.org/ TO MAKE spamspan.compressed.js
 */
 
 
 // load SpamSpan
-if (Drupal.jsEnabled) {
-   $(function () {
+Drupal.behaviors.spamspan = function(context) {
 // get each span with class spamSpanMainClass
-       $("span." + Drupal.settings.spamspan.m).each(function (index) {
+       $("span." + Drupal.settings.spamspan.m, context).each(function (index) {
 // for each such span, set mail to the relevant value, removing spaces	
 	    var _mail = ($("span." + Drupal.settings.spamspan.u, this).text() + 
 	    	"@" + 
@@ -35,5 +34,4 @@ if (Drupal.jsEnabled) {
 		.addClass("spamspan")
 		).remove();
 	} );
-	} )
-}
+};

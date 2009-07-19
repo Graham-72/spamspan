@@ -39,7 +39,7 @@
 function spamspan_help($path, $arg) {
   switch ($path) {
   case 'admin/help#spamspan':
-    return t('<p>The SpamSpan module obfuscates email addresses to help prevent spambots from collecting them. It will produce clickable links if JavaScript is enabled, and will show the email address as <code>example [at] example [dot] com</code> if the browser does not support JavaScript.</p><p>To configure the module, select "configure" next to the <a href="admin/filters">input format</a> you\'d like to use. Enable "Hide Email Addresses" and submit the form. Then select the "configure" tab to choose relevant options.</p>');
+    return t('<p>The SpamSpan module obfuscates email addresses to help prevent spambots from collecting them. It will produce clickable links if JavaScript is enabled, and will show the email address as <code>example [at] example [dot] com</code> if the browser does not support JavaScript.</p><p>To configure the module, select "configure" next to the <a href="admin/filters">input format</a> you\'d like to use. Enable "Hide Email Addresses using the SpamSpan technique" and submit the form. Then select the "configure" tab to choose relevant options.</p>');
   }
 }
 
@@ -60,7 +60,7 @@ function spamspan_filter_tips($delta, $format, $long = FALSE) {
  */
 function spamspan_filter($op, $delta = 0, $format = -1, $text = '') {
   if ($op == 'list') {
-    return array(0 => t('Hide email addresses'));
+    return array(0 => t('Hide email addresses using the SpamSpan technique'));
   }
   switch ($delta) {
   case 0:
@@ -154,7 +154,7 @@ function _spamspan_callback($matches) {
   // Replace .'s in the address with [dot]
   $user_name = str_replace(".", " [dot] ", $matches[2]);
   $domain = str_replace(".", " [dot] ", $matches[3]);
-  if (variable_get('spamspan_use_graphic', 1)) {
+  if (variable_get('spamspan_use_graphic', 0)) {
     $image = base_path() . drupal_get_path("module", "spamspan") ."/image.gif";
     $at = '<img alt="at" width="10" src="'. $image .'" />';
   }
