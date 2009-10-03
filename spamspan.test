@@ -153,5 +153,7 @@ class SpamSpanTestCase extends DrupalWebTestCase {
     $this->assertEqual(spamspan("<a href='mailto:email@example.com'>email@example.com</a>"),  '<span class="spamspan"><span class="u">email</span> [at] <span class="d">example [dot] com</span></span>', "Test mailto: with email as tag contents");
     // with a URL parameter string
     $this->assertEqual(spamspan("<a href='mailto:email@example.com?subject=subject'>some text</a>"),  '<span class="spamspan"><span class="u">email</span> [at] <span class="d">example [dot] com</span><span class="t"> (some text)</span></span>', "Test mailto: with a URL parameter string");
+    // with a URL parameter string - #153925
+    $this->assertEqual(spamspan('<a href="mailto:email@example.com?subject=test%20subject">some text</a>'),  '<span class="spamspan"><span class="u">email</span> [at] <span class="d">example [dot] com</span><span class="t"> (some text)</span></span>', "Test mailto: with a URL parameter string");
   }
 }
