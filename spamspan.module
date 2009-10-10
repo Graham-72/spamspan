@@ -205,7 +205,7 @@ function _spamspan_output($name, $domain, $contents, $headers) {
         //replace the = in the headers arrays by ": " to look nicer
         $temp_headers[]= str_replace("=", ": ", $value);
             }
-        $output .= "<span class=\"h\"> (". implode(', ', $temp_headers) .") </span>";
+        $output .= "<span class=\"h\"> (". check_plain(implode(', ', $temp_headers)) .") </span>";
     }
 // if there are tag contents, include them, between round brackets, unless
 // the contents are an email address.  In that case, we can ignore them.  This
@@ -218,8 +218,9 @@ function _spamspan_output($name, $domain, $contents, $headers) {
   }
   $output .= "</span>";
   // remove anything except certain inline elements, just in case.  NB nested
-  // <a> elements are illegal
-  $output = filter_xss($output, $allowed_tags = array('em', 'strong', 'cite', 'b', 'i', 'code', 'span'));
+  // <a> elements are illegal.  <img> needs to be here to allow for graphic
+  // @
+  $output = filter_xss($output, $allowed_tags = array('em', 'strong', 'cite', 'b', 'i', 'code', 'span', 'img'));
   return $output;
 }
 

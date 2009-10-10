@@ -7,7 +7,7 @@
   */
 
 
-class SpamSpanTestCase extends DrupalWebTestCase {
+class SpamSpanBasicTestCase extends DrupalWebTestCase {
   /**
     * Implementation of getInfo().
     */
@@ -136,7 +136,32 @@ class SpamSpanTestCase extends DrupalWebTestCase {
       $this->_checkEmail(" ", " ", $original, $shouldbe, "Test for spaces");
     }
   }
+}
 
+class SpamSpanMailtoTestCase extends DrupalWebTestCase {
+  /**
+    * Implementation of getInfo().
+    */
+  public static function getInfo() {
+    return array(
+      'name' => t('SpamSpan mailto: tests'),
+      'description' => t('Test SpamSpan mailto: replacement functions.'),
+      'group' => t('SpamSpan'),
+      );
+  }
+
+  /**
+    * Implementation of setUp().
+    */
+  function setUp() {
+    parent::setUp('spamspan');
+    // set up required defaults
+    variable_set('spamspan_userclass', 'u');
+    variable_set('spamspan_domainclass', 'd');
+    variable_set('spamspan_anchorclass', 't');
+    variable_set('spamspan_at', ' [at] ');
+    variable_set('spamspan_use_graphic', 0);
+  }
   /**
     * Test for proper conversion of mailto: URLs
     */
@@ -152,8 +177,9 @@ class SpamSpanTestCase extends DrupalWebTestCase {
     // with an email address as the tag contents
     $this->assertEqual(spamspan("<a href='mailto:email@example.com'>email@example.com</a>"),  '<span class="spamspan"><span class="u">email</span> [at] <span class="d">example [dot] com</span></span>', "Test mailto: with email as tag contents");
     // with a URL parameter string
-    $this->assertEqual(spamspan("<a href='mailto:email@example.com?subject=subject'>some text</a>"),  '<span class="spamspan"><span class="u">email</span> [at] <span class="d">example [dot] com</span><span class="t"> (some text)</span></span>', "Test mailto: with a URL parameter string");
-    // with a URL parameter string - #153925
-    $this->assertEqual(spamspan('<a href="mailto:email@example.com?subject=test%20subject">some text</a>'),  '<span class="spamspan"><span class="u">email</span> [at] <span class="d">example [dot] com</span><span class="t"> (some text)</span></span>', "Test mailto: with a URL parameter string");
+    $this->assertEqual(spamspan("<a href='mailto:email@example.com?subject=subject'>some text</a>"),  '<span class="spamspan"><span class="u">email</span> [at] <span class="d">example [dot] com</span><span class="h"> (subject: subject) </span><span class="t"> (some text)</span></span>', "Test mailto: with a URL parameter string");
+    // with a URL parameter string - multiple headers
+    $this->assertEqual(spamspan('<a href="mailto:email@example.com?subject=test%20subject&body=some%20text">some text</a>'),  '<span class="spamspan"><span class="u">email</span> [at] <span class="d">example [dot] com</span><span class="h"> (subject: test%20subject, body: some%20text) </span><span class="t"> (some text)</span></span>', "Test mailto: with a URL parameter string - multiple headers");
+
   }
 }
