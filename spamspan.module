@@ -22,9 +22,9 @@
  *
  * @constant string SPAMSPAN_EMAIL
  */
-  define(SPAMSPAN_EMAIL, "
-      ([-\.\~\'\w\+^@]+) # Group 1 - Match the name part - dash, dot or
-                           # characters.
+  define('SPAMSPAN_EMAIL', "
+      ([-\.\~\'\!\#\$\%\&\+\/\*\=\?\^\_\`\{\|\}\w\+^@]+) # Group 1 - Match the name part - dash, dot or
+                           #special characters.
      @                     # @
      ((?:        # Group 2
        [-\w]+\.            # one or more letters or dashes followed by a dot.
@@ -111,7 +111,6 @@ function spamspan_filter($op, $delta = 0, $format = -1, $text = '') {
         '#type' => 'checkbox',
         '#title' => t('Use a graphical replacement for "@"'),
         '#default_value' => variable_get('spamspan_use_graphic', 0),
-        '#required' => TRUE,
         '#description' => t('Replace "@" with a graphical representation when javascript is disabled (and ignore the setting "Replacement for @" above).')
         );
       return $form;
@@ -183,6 +182,7 @@ function _spamspan_callback_email($matches) {
  *  The span with which to replace the email address
  */
 function _spamspan_output($name, $domain, $contents, $headers) {
+
 
   // Replace .'s in the address with [dot]
   $user_name = str_replace(".", " [dot] ", $name);
@@ -258,8 +258,12 @@ function spamspan($string) {
       \s*                                             # whitespace
       href\s*=\s*(['\"])(mailto:"                     # the href attribute
       . SPAMSPAN_EMAIL .                              # The email address
-      "(?:\?.*)?)" .                                  # an optional ? followed
-                                                      # by a query string
+      "(?:\?[A-Za-z0-9_= %\.\-\~\_\&]*)?)" .            # an optional ? followed
+                                                      # by a query string. NB
+                                                      # we allow spaces here,
+                                                      # even though strictly
+                                                      # they should be URL
+                                                      # encoded
       "\\1                                            # the relevant quote
                                                       # character
       (?:(?:\s+\w+\s*=\s*)(?:\w+|\"[^\"]*\"|'[^']*'))*? # any more attributes
