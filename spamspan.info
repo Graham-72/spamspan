@@ -3,7 +3,7 @@ description = "The SpamSpan module obfuscates email addresses to help prevent sp
 package = "Input filters"
 dependencies[] = filter
 core = 7.x
-files[] = spamspan.module
+files[] = spamspan_admin.php
 files[] = spamspan.test
 ; load javascript on every page
 scripts[] = spamspan.js
