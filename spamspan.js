@@ -33,9 +33,11 @@ Drupal.behaviors.spamspan = {
   var _headerstring = _headers.join('&');
   _mailto += _headerstring ? ("?" + _headerstring) : '';
 // create the <a> element, and replace the original span contents
+// Issue https://www.drupal.org/node/1540732
+// .attr("href", _mailto) replaced by .attr("href", decodeURIComponent(_mailto))
    	    $(this).after(
 		$("<a></a>")
-		.attr("href", _mailto)
+		.attr("href", decodeURIComponent(_mailto))
 		.html(_anchorText ? _anchorText : _mail)
 		.addClass("spamspan")
 		).remove();
