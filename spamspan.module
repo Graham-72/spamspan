@@ -31,7 +31,8 @@ define('SPAMSPAN_EMAIL', "
        )+                  # The whole thing one or more times
        [A-Z]{2,6}          # with between two and six letters at the end (NB
                            # .museum)
-     )");
+     )
+");
 
 /**
  * Loads code used only in admin.
@@ -59,7 +60,6 @@ function spamspan_help($path, $arg) {
  * Implements hook_filter_info().
  */
 function spamspan_filter_info() {
-  spamspan_admin()->log('spamspan_filter_info() start.');
   $filters['spamspan']   = array(
     'title' => t('SpamSpan email address encoding filter'),
     'description' => t('Attempt to hide email addresses from spam-bots.'),
@@ -68,7 +68,12 @@ function spamspan_filter_info() {
     'tips callback' => '_spamspan_filter_tips',
     'default settings' => array(
       'spamspan_at' => ' [at] ',
+      'spamspan_dot_enable' => 0,
+      'spamspan_dot' => ' [dot] ',
       'spamspan_use_graphic' => 0,
+      'spamspan_use_url' => '<a href="/#formname?goto=#email">#displaytext</a>',
+      'spamspan_email_default' => 'contact_us_general_enquiry',
+      'spamspan_email_encode' => true,
     ),
   );
   return $filters;
@@ -88,10 +93,10 @@ function spamspan_filter_info() {
  *
  */
 function _spamspan_filter_process($text, $filter) {
-  spamspan_admin()->log('spamspan_filter_process() start.');
   // Top and tail the email regexp it so that it is case insensitive and
   // ignores whitespace.
   $emailpattern = "!" . SPAMSPAN_EMAIL . "!ix";
+  $emailpattern_with_options = "!" . SPAMSPAN_EMAIL . "[\|](.*) !ix";
 
   // Next set up a regex for mailto: URLs.
   // - see http://www.faqs.org/rfcs/rfc2368.html
@@ -129,15 +134,14 @@ function _spamspan_filter_process($text, $filter) {
   _filter_spamspan_escape_images('', TRUE);
   $text = preg_replace_callback('/<img(.*?)>/', '_filter_spamspan_escape_images', $text);
 
-  // The preg_replace_callback functions below cannot take any additional
-  // arguments, so we have to use a global variable to pass the relevant
-  // settings.
-  $GLOBALS['spamspan_settings'] = $filter->settings;
-  
   // Now we can convert all mailto URLs
-  $text = preg_replace_callback($mailtopattern, '_spamspan_callback_mailto', $text);
+  $text = preg_replace_callback($mailtopattern, function($matches) use ($filter) {
+    return _spamspan_callback_mailto($matches, $filter->settings);
+  }, $text);
   // and finally, all bare email addresses
-  $text = preg_replace_callback($emailpattern, '_spamspan_callback_email', $text);
+  $text = preg_replace_callback($emailpattern, function($matches) use ($filter) {
+    return spamspan_admin()->output($matches[1], $matches[2], '', '', $filter->settings);
+  }, $text);
 
   // Revert back to the original image contents.
   _filter_spamspan_escape_images('', FALSE);
@@ -211,8 +215,7 @@ function _spamspan_filter_tips($filter, $format, $long = FALSE) {
  * @return
  *  The span with which to replace the email address
  */
-function _spamspan_callback_mailto($matches) {
-  spamspan_admin()->log('_spamspan_callback_mailto() start.');
+function _spamspan_callback_mailto($matches, $settings) {
   // take the mailto: URL in $matches[2] and split the query string
   // into its component parts, putting them in $headers as
   // [0]=>"header=contents" etc.  We cannot use parse_str because
@@ -222,12 +225,7 @@ function _spamspan_callback_mailto($matches) {
   if ($headers[0] == '') {
     $headers = array();
   }
-  return spamspan_admin()->output($matches[3], $matches[4], $matches[5], $headers);
-}
-
-function _spamspan_callback_email($matches) {
-  spamspan_admin()->log('_spamspan_callback_email() start.');
-  return spamspan_admin()->output($matches[1], $matches[2], '', '');
+  return spamspan_admin()->output($matches[3], $matches[4], $matches[5], $headers, $settings);
 }
 
 /**
@@ -241,8 +239,7 @@ function _spamspan_callback_email($matches) {
  * @return
  *  The input text with emails replaced by spans
  */
-function spamspan($text, $settings = array()) {
-  spamspan_admin()->log('spamspan() start.');
+function spamspan($text = '', $settings = array()) {
   //apply default settings
   $defaults = array(
     'spamspan_at' => ' [at] ',

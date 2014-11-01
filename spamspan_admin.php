@@ -30,6 +30,19 @@ class spamspan_admin {
       '#default_value' => $filter->settings['spamspan_use_graphic'],
       '#description' => t('Replace "@" with a graphical representation when javascript is disabled (and ignore the setting "Replacement for @" above).'),
     );
+    $settings['spamspan_dot_enable'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Replace dots in email with text'),
+      '#default_value' => $filter->settings['spamspan_dot_enable'],
+      '#description' => t('Switch on dot replacement.'),
+    );
+    $settings['spamspan_dot'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Replacement for "."'),
+      '#default_value' => $filter->settings['spamspan_dot'],
+      '#required' => TRUE,
+      '#description' => t('Replace "." with this text.'),
+    );
     return $settings;
   }
 
@@ -58,9 +71,8 @@ class spamspan_admin {
    * @return
    *  The span with which to replace the email address
    */
-  function output($name, $domain, $contents, $headers) {
+  function output($name, $domain, $contents, $headers, $settings) {
   
-    $settings = $GLOBALS['spamspan_settings'];
     // Replace .'s in the address with [dot]
     $user_name = str_replace(".", " [dot] ", $name);
     $domain = str_replace(".", " [dot] ", $domain);
