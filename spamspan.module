@@ -93,6 +93,8 @@ function spamspan_filter_info() {
  *
  */
 function _spamspan_filter_process($text, $filter) {
+  // Save the filter for use in functions.
+  spamspan_admin()->filter_set($filter);
   // Top and tail the email regexp it so that it is case insensitive and
   // ignores whitespace.
   $emailpattern = "!" . SPAMSPAN_EMAIL . "!ix";
@@ -135,13 +137,9 @@ function _spamspan_filter_process($text, $filter) {
   $text = preg_replace_callback('/<img(.*?)>/', '_filter_spamspan_escape_images', $text);
 
   // Now we can convert all mailto URLs
-  $text = preg_replace_callback($mailtopattern, function($matches) use ($filter) {
-    return _spamspan_callback_mailto($matches, $filter->settings);
-  }, $text);
+  $text = preg_replace_callback($mailtopattern, '_spamspan_callback_mailto', $text);
   // and finally, all bare email addresses
-  $text = preg_replace_callback($emailpattern, function($matches) use ($filter) {
-    return spamspan_admin()->output($matches[1], $matches[2], '', '', $filter->settings);
-  }, $text);
+  $text = preg_replace_callback($emailpattern, '_spamspan_bare_email_addresses', $text);
 
   // Revert back to the original image contents.
   _filter_spamspan_escape_images('', FALSE);
@@ -150,6 +148,9 @@ function _spamspan_filter_process($text, $filter) {
   return $text;
 }
 
+function _spamspan_bare_email_addresses($matches) {
+  return spamspan_admin()->output($matches[1], $matches[2]);
+}
 /**
  * Escapes the contents of HTML image tags.
  *
@@ -215,7 +216,7 @@ function _spamspan_filter_tips($filter, $format, $long = FALSE) {
  * @return
  *  The span with which to replace the email address
  */
-function _spamspan_callback_mailto($matches, $settings) {
+function _spamspan_callback_mailto($matches) {
   // take the mailto: URL in $matches[2] and split the query string
   // into its component parts, putting them in $headers as
   // [0]=>"header=contents" etc.  We cannot use parse_str because
@@ -225,7 +226,7 @@ function _spamspan_callback_mailto($matches, $settings) {
   if ($headers[0] == '') {
     $headers = array();
   }
-  return spamspan_admin()->output($matches[3], $matches[4], $matches[5], $headers, $settings);
+  return spamspan_admin()->output($matches[3], $matches[4], $matches[5], $headers);
 }
 
 /**

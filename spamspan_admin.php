@@ -9,7 +9,14 @@
 
 class spamspan_admin {
   protected $display_name = 'SpamSpan';
-
+  protected $filter;
+  function filter_is() {
+    return isset($this->filter);
+  }
+  function filter_set($filter) {
+    $this->filter = $filter;
+  }
+  
   /**
    * Settings callback for spamspan filter
    */
@@ -71,8 +78,13 @@ class spamspan_admin {
    * @return
    *  The span with which to replace the email address
    */
-  function output($name, $domain, $contents, $headers, $settings) {
-  
+  function output($name, $domain, $contents, $headers, $settings = NULL) {
+    if ($settings === NULL) {
+      $settings = array();
+      if ($this->filter_is()) {
+        $settings = $this->filter->settings;
+      }
+    }
     // Replace .'s in the address with [dot]
     $user_name = str_replace(".", " [dot] ", $name);
     $domain = str_replace(".", " [dot] ", $domain);
