@@ -78,7 +78,7 @@ class spamspan_admin {
    * @return
    *  The span with which to replace the email address
    */
-  function output($name, $domain, $contents, $headers, $settings = NULL) {
+  function output($name, $domain, $contents = '', $headers = '', $settings = NULL) {
     if ($settings === NULL) {
       $settings = array();
       if ($this->filter_is()) {
