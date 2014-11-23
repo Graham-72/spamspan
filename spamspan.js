@@ -14,12 +14,14 @@ Drupal.behaviors.spamspan = {
   attach: function(context, settings) {
     // get each span with class spamspan
     $("span.spamspan", context).each(function (index) {
-      // for each such span, set mail to the relevant value, removing spaces
+      // Replace each <spam class="t"></spam> with .
+      $('span.t', this).replaceWith('.');
+      
+      // For each selected span, set mail to the relevant value, removing spaces
       var _mail = ($("span.u", this).text() +
         "@" +
         $("span.d", this).text())
-        .replace(/\s+/g, '')
-        .replace(/\[dot\]/g, '.');
+        .replace(/\s+/g, '');
       // Find the header text, and remove the round brackets from the start and end
       var _headerText = $("span.h", this).text().replace(/^ ?\((.*)\) ?$/, "$1");
       // split into individual headers, and return as an array of header=value pairs

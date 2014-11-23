@@ -258,9 +258,7 @@ function _spamspan_callback_mailto($matches) {
  * Implements hook_menu().
  */
 function spamspan_menu() {
-  watchdog('spamspan', 'menu()');
   $items = spamspan_admin()->menu();
-  watchdog('spamspan', 'menu(): @v', array('@v' => serialize($items)));
   return $items;
 }
 
@@ -341,10 +339,8 @@ function spamspan($text = '', $settings = array()) {
   //apply default settings
   $info = spamspan_filter_info();
   $defaults = $info['spamspan']['default settings'];
-
-  $defaults += $settings;
   //create a dummy filter object so we can apply the settings
   $filter = new stdClass();
-  $filter->settings = $defaults;
+  $filter->settings = array_merge($defaults, $settings);
   return _spamspan_filter_process($text, $filter);
 }

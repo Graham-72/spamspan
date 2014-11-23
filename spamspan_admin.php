@@ -8,17 +8,22 @@
  */
 
 class spamspan_admin {
-  protected $configuration_page = 'admin/config/content/spamspan';
+  protected $configuration_page = 'admin/config/content/formats/spamspan';
   protected $defaults;
   protected $display_name = 'SpamSpan';
   protected $filter;
   protected $help = '<p>The SpamSpan module obfuscates email addresses to help prevent spambots from collecting them. Read the <a href="@url">Spamspan configuration page</a>.</p>';
-  protected $form_test_field = 'test';
-  protected $test_text = 'My work email is me@example.com and my home email is me@example.org.';
+  protected $page;
 
   function __construct() {
     $info = spamspan_filter_info();
     $this->defaults = $info['spamspan']['default settings'];
+  }
+  function defaults() {
+    return $this->defaults;
+  }
+  function display_name() {
+    return $this->display_name;
   }
   function filter_is() {
     return isset($this->filter);
@@ -124,6 +129,7 @@ class spamspan_admin {
     $items[$this->configuration_page] = array(
       'title' => 'Spamspan',
       'description' => 'Experiment with the Spamspan function.',
+      'type' => MENU_LOCAL_TASK,
       'page callback' => 'drupal_get_form',
       'page arguments' => array('spamspan_admin_page'),
       'access arguments' => array('administer filters'),
@@ -184,8 +190,8 @@ class spamspan_admin {
     else {
       if (isset($settings['spamspan_dot_enable']) and $settings['spamspan_dot_enable']) {
         // Replace .'s in the address with [dot]
-        $name = str_replace('.', $settings['spamspan_dot'], $name);
-        $domain = str_replace('.', $settings['spamspan_dot'], $domain);
+        $name = str_replace('.', '<span class="t">' . $settings['spamspan_dot'] . '</span>', $name);
+        $domain = str_replace('.', '<span class="t">' . $settings['spamspan_dot'] . '</span>', $domain);
       }
       $output = '<span class="u">' . $name . '</span>' . $at . '<span class="d">' . $domain . '</span>';
     }
@@ -220,65 +226,16 @@ class spamspan_admin {
    * Return the admin page.
    * External text should be checked: = array('#markup' => check_plain($format->name));
    */
-  function page($form, &$form_state) {
-    $test_text = $this->test_text;
-    if(isset($form_state['storage'][$this->form_test_field])) {
-      $test_text = $form_state['storage'][$this->form_test_field];
+  function page_object() {
+    if (!isset($this->page)) {
+      $this->page = new spamspan_admin_page($this);
     }
-    $default_list = array();
-    foreach ($this->defaults as $name => $value) {
-      if ($value === TRUE) { $value = 'TRUE'; }
-      elseif ($value === FALSE) { $value = 'FALSE'; }
-      $default_list[] = $name . ': <strong>' . htmlentities($value) . '</strong>';
-    }
-    $form['configure'] = array('#markup' => t(
-      '<p>The @dn module obfuscates email addresses to help prevent spambots from collecting them.'
-      . ' It will produce clickable links if JavaScript is enabled,'
-      . ' and will show the email address as <code>example [at] example [dot] com</code> if the browser does not support JavaScript.</p>'
-      . '<p>To configure the module:<ol>'
-      . '<li>Read the list of text formats at <a href="/admin/config/content/formats">Text formats</a>.</li>'
-      . '<li>Select <strong>configure</strong> for the format requiring email addresses.</li>'
-      . '<li>In <strong>Enable filters</strong>, select <em>@dn email address encoding filter</em>.</li>'
-      . '<li>In <strong>Filter processing order </strong>, move @dn below <em>Convert line breaks into HTML</em> and above <em>Convert URLs into links</em>.</li>'
-      . '<li>If you use the <strong>Limit allowed HTML tags</strong> filter, make sure that <span> is one of the allowed tags.</li>'
-      . '<li>Select <strong>@dn email address encoding filter</strong> to configure @dn for the text format.</li>'
-      . '<li>Select <strong>Save configuration</strong> to save your changes.</li>'
-      . '</ol></p>'
-      . '<h2>Defaults</h2>'
-      . '<p>The following defaults are used for new filters and for spamspan() when there is no filter specified.</p>'
-      . '<ul><li>' . implode('</li><li>', $default_list) . '</li></ul>'
-      . '<h2>Test spamspan()</h2>'
-      . '<p>Test the @dn <code>spamspan()</code> function using the following <strong>Test text</strong> field.'
-      . ' Enter text containing an email address then hit the Test button. We set up a default example to get you started.</p>',
-      array('@dn' => $this->display_name)
-    ));
-    $form[$this->form_test_field] = array(
-      '#type' => 'textfield',
-      '#title' => t('Test text'),
-      '#size' => 80,
-      '#maxlength' => 200,
-      '#default_value' => $test_text,
-    );
-    $test_result = spamspan($test_text);
-    $form['test_js'] = array('#markup' => '<p>The result passed through spamspan()'
-      . ' and processed by Javasript:</p><div style="background-color: #ccffcc;">' . $test_result . '</div>');
-    $form['test_result'] = array('#markup' => '<p>The result passed through spamspan() but not processed by Javascript:</p>'
-      . '<div style="background-color: #ccccff;">'
-      . str_replace('class="spamspan"', '', $test_result)
-      . '</div>');
-    $form['test_as_html'] = array('#markup' => '<p>The HTML in the result:</p>'
-      . '<div style="background-color: #ffcccc;">' . nl2br(htmlentities($test_result)) . '</div>');
-    $form['actions'] = array('#type' => 'actions');
-    $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Test'));
-    return $form;
+    return $this->page;
   }
-  /**
-   * .
-   */
+  function page($form, &$form_state) {
+    return $this->page_object()->form($form, $form_state);
+  }
   function page_submit($form, &$form_state) {
-    // Store the submitted value in $form_state['storage']:
-    $form_state['storage'][$this->form_test_field] = $form_state['values'][$this->form_test_field];
-    // Force the form to rebuild to save the stored value.
-    $form_state['rebuild'] = TRUE;
+    $this->page_object()->submit($form, $form_state);
   }
 }
