@@ -15,7 +15,9 @@ Drupal.behaviors.spamspan = {
     // get each span with class spamspan
     $("span.spamspan", context).each(function (index) {
       // Replace each <spam class="t"></spam> with .
-      $('span.t', this).replaceWith('.');
+      if ($('span.t', this).length) {
+        $('span.t', this).replaceWith('.');
+      }
       
       // For each selected span, set mail to the relevant value, removing spaces
       var _mail = ($("span.u", this).text() +
