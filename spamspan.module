@@ -303,3 +303,14 @@ function theme_spamspan_at_sign($variables) {
   $output = '<img class="spam-span-image" alt="at" width="10" src="' . base_path() . backdrop_get_path('module', 'spamspan') . '/image.gif" />';
   return $output;
 }
+
+/**
+ * Implements hook_autoload_info().
+ */
+function spamspan_autoload_info()
+{
+    return array(
+        'spamspan_admin' => 'spamspan_admin.php',
+        'spamspan_admin_page' => 'spamspan_admin_page.php'
+    );
+}
