@@ -8,9 +8,9 @@ Licence version 2, available at http://www.gnu.org/licenses/gpl.txt
 --------------------------------------------------------------------------
 */
 
-(function ($) { //Standard drupal jQuery wrapper.  See http://drupal.org/update/modules/6/7#javascript_compatibility
+(function ($) { //Standard backdrop jQuery wrapper.  See http://drupal.org/update/modules/6/7#javascript_compatibility
 // load SpamSpan
-Drupal.behaviors.spamspan = {
+Backdrop.behaviors.spamspan = {
   attach: function(context, settings) {
     // get each span with class spamspan
     $("span.spamspan", context).each(function (index) {

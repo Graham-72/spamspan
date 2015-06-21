@@ -2,7 +2,8 @@ name = SpamSpan
 description = "The SpamSpan module obfuscates email addresses to help prevent spambots from collecting them. It implements the technique at http://www.spamspan.com."
 package = "Input filters"
 dependencies[] = filter
-core = 7.x
+backdrop = 1.x
+type = module
 configure = admin/config/content/formats
 
 dependencies[] = filter

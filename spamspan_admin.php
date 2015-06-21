@@ -131,7 +131,7 @@ class spamspan_admin {
       'title' => 'Spamspan',
       'description' => 'Experiment with the Spamspan function.',
       'type' => MENU_LOCAL_TASK,
-      'page callback' => 'drupal_get_form',
+      'page callback' => 'backdrop_get_form',
       'page arguments' => array('spamspan_admin_page'),
       'access arguments' => array('administer filters'),
     );

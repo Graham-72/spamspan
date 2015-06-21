@@ -300,6 +300,6 @@ function spamspan_theme($existing, $type, $theme, $path) {
 }
 
 function theme_spamspan_at_sign($variables) {
-  $output = '<img class="spam-span-image" alt="at" width="10" src="' . base_path() . drupal_get_path('module', 'spamspan') . '/image.gif" />';
+  $output = '<img class="spam-span-image" alt="at" width="10" src="' . base_path() . backdrop_get_path('module', 'spamspan') . '/image.gif" />';
   return $output;
 }
